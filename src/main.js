@@ -5,6 +5,10 @@ var app = require('./app.js');
 var building = new app.Building("Waterfront Tower");
 var people = [];
 
+var add = function(a,b){
+      return a + b;
+};
+
 // --------------------------------
 menu.addDelimiter('-', 40, building.address + " rental app");
 
@@ -64,15 +68,33 @@ menu.addItem('Show all units',
   }  
 );
 
-menu.addItem('(implement me) Show available units', 
+menu.addItem('Show available units', 
   function() {
-      console.log("Implement me");
+      var available = building.availableUnits();
+      for(var i = available.length - 1; i >= 0; i--) {
+      console.log(" tenant: " + available[i].tenant +
+              " num: " + available[i].number + 
+                  " sqft: " + available[i].sqft +
+                  " rent: $" + available[i].rent);
+      }
     } 
 );
 
-menu.addItem('(implement me) Add tenant reference', 
+menu.addItem('Add tenant reference', 
   function(tenant_name, ref_name, ref_contact) {
-      console.log("Implement me. Show error if tenant is unknown. Note: a reference is a person");
+      var is_tenant = false;
+      var tenant;
+      for(var i = 0; i < people.length; i++){
+        if(people[i].name === tenant_name && people[i] instanceof app.Tenant){
+          is_tenant = true;
+          tenant = people[i];
+        }
+      }
+      if(!is_tenant){
+        console.log("Error: this is not a tenant");return null;
+      }
+      var newRef = new app.Person(ref_name, ref_contact);
+      tenant.references.push(newRef);
     },
     null, 
     [{'name': 'tenant_name', 'type': 'string'},
@@ -80,36 +102,84 @@ menu.addItem('(implement me) Add tenant reference',
     {'name': 'ref_contact', 'type': 'string'}] 
 );
 
-menu.addItem('(implement me) Move tenant in unit', 
+menu.addItem('Move tenant in unit', 
   function(unit_number, tenant_name) {
       // find tenant and unit objects, use building's addTenant() function.
-      console.log("Implement me.");
+      var new_tenant = null;
+      var unit = null;
+      for(var i = 0; i < people.length; i++){
+        if(people[i].name === tenant_name && people[i] instanceof app.Tenant){
+          new_tenant = people[i];
+        }
+      }
+      for(var j = 0; j < building.units.length; j++){
+        if(building.units[i].name === unit_number && building.units[i] instanceof app.Unit){
+          unit = building.units[i];
+        }
+      }
+      if(unit === null){
+        console.log("Error: unit does not exist");
+        return null;
+      }
+      if(new_tenant === null){
+        console.log("Error: new_tenant is not a tenant");
+        return null;
+      }
+      building.addTenant(unit, new_tenant);
+
     },
     null, 
     [{'name': 'unit_number', 'type': 'string'},
     {'name': 'tenant_name', 'type': 'string'}] 
 );
 
-menu.addItem('(implement me) Evict tenant', 
+menu.addItem('Evict tenant', 
   function(tenant_name) {
       // Similar to above, use building's removeTenant() function.
-      console.log("Implement me");
+      var tenant = null;
+      var unit = null;
+      for(var i = 0; i < people.length; i++){
+        if(people[i].name === tenant_name && people[i] instanceof app.Tenant){
+          tenant = people[i];
+        }
+      }
+      for(var j = 0; j < building.units.length; j++){
+        if(building.units[i].tenant === tenant && building.units[i] instanceof app.Unit){
+          unit = building.units[i];
+        }
+      }
+      building.removeTenant(unit, tenant);
     },
     null, 
     [{'name': 'tenant_name', 'type': 'string'}] 
 );
 
-menu.addItem('(implement me) Show total sqft rented', 
+menu.addItem('Show total sqft rented', 
   function() {
-      console.log("Implement me");
-    } 
+    
+    var rented_units = building.availableUnits();
+    var ret = [];
+    for(var i = 0; i < rented_units.length; i++){
+      ret.push(rented_units[i].sqft);
+    }
+    ret.reduce(add);
+
+    return ret;
+  } 
 );
 
-menu.addItem('(implement me) Show total yearly income', 
+menu.addItem('Show total yearly income', 
   function() {
       // Note: only rented units produce income
-      console.log("Implement me.");
-    } 
+      var rented_units = building.availableUnits();
+      var ret = [];
+      for(var i = 0; i < rented_units.length; i++){
+        ret.push(rented_units[i].sqft);
+      }
+      ret.reduce(add);
+
+      return ret;
+  } 
 );
 
 menu.addItem('(Add your own feature ...)', 

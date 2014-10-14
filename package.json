@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "a lab for playing with constructors and prototypes in JS",
   "scripts": {
-  	"test": "mocha -R spec test/*"
+    "test": "mocha -R spec test/*"
   },
   "repository": {
     "type": "git",
